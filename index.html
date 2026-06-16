@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>backbench</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="min-h-screen bg-black text-white flex flex-col">
+        <!-- Header -->
+        <header class="border-b border-orange-500/20">
+            <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-xl font-bold">B</div>
+                    <h1 class="text-3xl font-semibold tracking-tighter">backbench</h1>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <main class="flex-1 flex items-center justify-center px-6">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 bg-orange-500/10 text-orange-400 text-sm px-4 py-2 rounded-full mb-8 border border-orange-500/30">
+                    <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                    REAL-TIME COLLABORATION
+                </div>
+                
+                <h2 class="text-7xl md:text-8xl font-semibold tracking-tighter leading-none mb-6">
+                    Where ideas<br>come to life
+                </h2>
+                
+                <p class="text-xl text-gray-400 mb-12 max-w-md mx-auto">
+                    Create or join rooms instantly. Brainstorm, present, and collaborate with your team.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="create.html" 
+                       class="group px-10 py-6 bg-orange-500 hover:bg-orange-600 text-black font-semibold text-xl rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:-translate-y-0.5 w-full sm:w-auto">
+                        <span>Create Room</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-active:rotate-45 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </a>
+                    
+                    <a href="join.html" 
+                       class="group px-10 py-6 border-2 border-white/80 hover:border-orange-400 text-white hover:text-orange-400 font-semibold text-xl rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 w-full sm:w-auto">
+                        Join Room
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        tailwind.config = {
+            content: [],
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+</body>
+</html>
