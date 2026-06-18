@@ -56,16 +56,47 @@
             document.getElementById('pinInput').value = pin;
         }
 
-        function createRoom() {
+        async function createRoom() {
             const pin = document.getElementById('pinInput').value.trim();
-            if (pin.length === 6) {
-                alert(`✅ Room Created Successfully!\n\nPIN: ${pin}\n\nShare with your team.`);
-            } else {
+        
+            if (pin.length !== 6) {
                 alert("❌ Enter a valid 6-digit PIN");
+                return;
             }
-        }
 
-        window.onload = generatePin;
+            try {
+            // Save for local use
+                localStorage.setItem('roomPin', pin);
+
+            // Send to backend
+                const response = await fetch("http://localhost:8080/create-room", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ pin: pin })
+                });
+
+                const data = await response.json();
+                console.log("Backend Response:", data);
+
+                alert(`✅ Room Created!\n\nPIN: ${pin}\n\nRedirecting...`);
+                window.location.href = "room.html";
+
+            } catch (error) {
+            console.error("Error:", error);
+            alert("❌ Backend not reachable. Is server running?");
+            // Still redirect for testing
+            window.location.href = "room.html";
+            } 
+            }
+
+            function generatePin() {
+            const pin = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('pinInput').value = pin;
+            }
+
+            window.onload = generatePin;
     </script>
 </body>
 </html>

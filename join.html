@@ -36,9 +36,11 @@
         function joinRoom() {
             const pin = document.getElementById('pinInput').value.trim();
             if (pin.length === 6) {
+                localStorage.setItem('roomPin', pin);
                 alert(`✅ Joining room with PIN: ${pin}`);
+                window.location.href = "room.html";
             } else {
-                alert("Please enter a valid 6-digit PIN");
+                alert("❌ Please enter a valid 6-digit PIN");
             }
         }
     </script>
