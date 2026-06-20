@@ -32,17 +32,61 @@
         </div>
     </div>
 
-    <script>
-        function joinRoom() {
-            const pin = document.getElementById('pinInput').value.trim();
-            if (pin.length === 6) {
-                localStorage.setItem('roomPin', pin);
-                alert(`✅ Joining room with PIN: ${pin}`);
-                window.location.href = "room.html";
-            } else {
-                alert("❌ Please enter a valid 6-digit PIN");
+<script>
+async function joinRoom() {
+
+    const pin =
+        document.getElementById("pinInput")
+        .value
+        .trim();
+
+    if (pin.length !== 6) {
+
+        alert("❌ Please enter a valid 6-digit PIN");
+        return;
+
+    }
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:8080/join-room",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    pin: pin
+                })
             }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+
+            localStorage.setItem("roomPin", pin);
+
+            alert("✅ Room Found");
+
+            window.location.href = "room.html";
+
+        } else {
+
+            alert("❌ " + data.message);
+
         }
-    </script>
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Server Error");
+
+    }
+
+}
+</script>
 </body>
 </html>
