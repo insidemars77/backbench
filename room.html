@@ -110,7 +110,15 @@
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 
 <script>
-    const socket = io("http://localhost:8080");
+    const socket = io("https://backbench-backend.onrender.com");
+
+    socket.on("connect", () => {
+    console.log("✅ Socket Connected:", socket.id);
+});
+
+socket.on("connect_error", (err) => {
+    console.log("❌ Socket Error:", err.message);
+});
 
     function copyPin() {
         const pin = document.getElementById('roomPin').textContent;
@@ -190,7 +198,7 @@
 
     const response =
         await fetch(
-            `http://localhost:8080/messages/${pin}`
+            `https://backbench-backend.onrender.com/messages/${pin}`
         );
 
     const messages =
