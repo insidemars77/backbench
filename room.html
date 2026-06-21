@@ -178,10 +178,48 @@
 
         document.getElementById("roomPin").textContent = pin;
 
+        loadMessages(pin);
+
         socket.emit("join-room", pin);
 
         console.log("Joined room:", pin);
 
     };
+
+    async function loadMessages(pin) {
+
+    const response =
+        await fetch(
+            `http://localhost:8080/messages/${pin}`
+        );
+
+    const messages =
+        await response.json();
+
+    const chatArea =
+        document.getElementById(
+            "chatArea"
+        );
+
+    chatArea.innerHTML = "";
+
+    messages.forEach((msg) => {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.innerHTML = `
+            <p class="text-zinc-300">
+                ${msg.text}
+            </p>
+        `;
+
+        chatArea.appendChild(div);
+
+    });
+
+}
 </script>
 </html>
