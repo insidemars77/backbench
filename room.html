@@ -4,230 +4,455 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room • backbench</title>
-    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            background: #09090b;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── FIXED HEADER ── */
+        #topBar {
+            flex-shrink: 0;
+            background: #18181b;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.3);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 50;
+        }
+
+        /* ── FIXED TABS ── */
+        #tabBar {
+            flex-shrink: 0;
+            display: flex;
+            background: #18181b;
+            border-bottom: 1px solid #27272a;
+            z-index: 40;
+        }
+
+        /* ── MAIN BODY ── */
+        #mainBody {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── CONTENT WRAPPER ── */
+        #contentWrapper {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── TAB BUTTONS ── */
+        .tab-btn {
+            padding: 16px 32px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #a1a1aa;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-btn.active {
+            color: white;
+            border-bottom-color: #f97316;
+        }
+        .tab-btn:hover:not(.active) { color: white; }
+
+        /* ── TAB CONTENTS ── */
+        .tab-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .tab-content.active { display: flex; }
+
+        /* ── SCROLLABLE CHAT AREA ── */
+        #chatArea {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: #71717a #27272a;
+        }
+        #chatArea::-webkit-scrollbar { width: 6px; }
+        #chatArea::-webkit-scrollbar-thumb { background-color: #71717a; border-radius: 20px; }
+        #chatArea::-webkit-scrollbar-thumb:hover { background-color: #a3a3a3; }
+
+        /* ── FIXED INPUT BAR ── */
+        #messageInputBar {
+            flex-shrink: 0;
+            background: #18181b;
+            border-top: 1px solid #3f3f46;
+            padding: 20px 24px;
+        }
+
+        /* ── MESSAGE BUBBLES ── */
+        .msg-bubble {
+            background: #27272a;
+            border-radius: 16px;
+            padding: 12px 16px;
+            max-width: 72%;
+            align-self: flex-start;
+        }
+        .msg-bubble.own {
+            background: #f97316;
+            align-self: flex-end;
+        }
+        .msg-bubble p {
+            color: #d4d4d8;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .msg-bubble.own p { color: #1c0a00; }
+
+        /* ── FILES SIDEBAR ── */
+        #filesSidebar {
+            width: 360px;
+            flex-shrink: 0;
+            background: #18181b;
+            border-left: 1px solid #27272a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NOTES EDITOR ── */
+        #notesEditor {
+            flex: 1;
+            resize: none;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e4e4e7;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.8;
+            padding: 0;
+            width: 100%;
+        }
+        #notesEditor::placeholder { color: #52525b; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .msg-bubble { animation: fadeIn 0.15s ease; }
+    </style>
 </head>
-<body class="bg-zinc-950 text-white min-h-screen flex flex-col">
-    <!-- Top Bar -->
-    <header class="bg-zinc-900 border-b border-orange-500/30 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <div class="w-9 h-9 bg-orange-500 rounded-2xl flex items-center justify-center font-bold text-2xl">B</div>
+<body>
+
+    <!-- ── FIXED TOP BAR ── -->
+    <header id="topBar">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:36px;height:36px;background:#f97316;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#1c0a00;">B</div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight">backbench</h1>
-                <p class="text-sm text-zinc-400">Room PIN: <span id="roomPin" class="text-orange-400 font-mono font-semibold">874392</span></p>
+                <h1 style="margin:0;font-size:20px;font-weight:700;letter-spacing:-0.5px;font-family:'Space Grotesk',sans-serif;">backbench</h1>
+                <p style="margin:0;font-size:13px;color:#a1a1aa;">Room PIN: <span id="roomPin" style="color:#fb923c;font-family:monospace;font-weight:600;">874392</span></p>
             </div>
         </div>
-        
-        <div class="flex items-center gap-6">
-            <div class="flex items-center gap-2 bg-zinc-800 px-4 py-2 rounded-2xl">
-                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-sm">
-                <span id="onlineCount">1</span> online
-                </span>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:8px;background:#27272a;padding:8px 16px;border-radius:16px;">
+                <div style="width:10px;height:10px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;"></div>
+                <span style="font-size:13px;"><span id="onlineCount">1</span> online</span>
             </div>
-            <button onclick="copyPin()" 
-                    class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-5 py-2 rounded-2xl transition">
+            <button onclick="copyPin()" style="display:flex;align-items:center;gap:6px;background:#27272a;border:none;color:white;cursor:pointer;padding:8px 20px;border-radius:16px;font-size:13px;font-family:'Inter',sans-serif;">
                 📋 Copy PIN
             </button>
-            <button onclick="leaveRoom()" 
-                    class="text-red-400 hover:text-red-500 transition">Leave Room</button>
+            <button onclick="leaveRoom()" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;">
+                Leave Room
+            </button>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        <!-- Chat Section -->
-        <div class="flex-1 flex flex-col border-r border-zinc-800">
-            <div class="p-6 border-b border-zinc-800">
-                <h2 class="text-xl font-semibold flex items-center gap-2">
-                    💬 Team Chat
-                </h2>
-            </div>
-            
-            <!-- Messages Area -->
-            <div id="chatArea" class="flex-1 p-6 overflow-y-auto space-y-6 bg-zinc-950">
-                plz be toxic!
-            </div>
+    <!-- ── MAIN BODY ── -->
+    <div id="mainBody">
 
-            <!-- Message Input -->
-            <div class="p-6 border-t border-zinc-800 bg-zinc-900">
-                <div class="flex gap-3">
-                    <input type="text" id="messageInput" 
-                           class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-orange-500 rounded-2xl px-6 py-4 outline-none"
-                           placeholder="Type a message...">
-                    <button onclick="sendMessage()" 
-                            class="bg-orange-500 hover:bg-orange-600 text-black px-8 rounded-2xl font-semibold transition">
-                        Send
-                    </button>
-                </div>
-            </div>
+        <!-- FIXED TABS -->
+        <div id="tabBar">
+            <button class="tab-btn active" id="tab-0" onclick="switchTab(0)">💬 Chats</button>
+            <button class="tab-btn"        id="tab-1" onclick="switchTab(1)">📝 Notes</button>
+            <button class="tab-btn"        id="tab-2" onclick="switchTab(2)">⚙️ Work in Progress</button>
         </div>
 
-        <!-- File Management Section -->
-        <div class="w-96 bg-zinc-900 border-l border-zinc-800 flex flex-col">
-            <div class="p-6 border-b border-zinc-800">
-                <h2 class="text-xl font-semibold flex items-center gap-2">
-                    📁 Files
-                </h2>
-            </div>
-            
-            <div class="flex-1 p-6 overflow-y-auto space-y-3">
-                <!-- Sample files -->
-                <div class="bg-zinc-800 p-4 rounded-2xl flex items-center gap-4 hover:bg-zinc-700 transition">
-                    <div class="text-3xl">📄</div>
-                    <div class="flex-1">
-                        <p class="font-medium">Project_Brief.pdf</p>
-                        <p class="text-xs text-zinc-400">Uploaded by Sarah • 2 hours ago</p>
+        <!-- CONTENT WRAPPER -->
+        <div id="contentWrapper">
+
+            <!-- ── CHATS TAB ── -->
+            <div id="content-0" class="tab-content active">
+                <div id="chatArea"></div>
+                <div id="messageInputBar">
+                    <div style="display:flex;gap:12px;">
+                        <input type="text" id="messageInput"
+                               style="flex:1;background:#27272a;border:1px solid #3f3f46;color:white;border-radius:16px;padding:14px 20px;outline:none;font-size:14px;font-family:'Inter',sans-serif;"
+                               placeholder="Type a message..."
+                               onfocus="this.style.borderColor='#f97316'"
+                               onblur="this.style.borderColor='#3f3f46'"
+                               onkeydown="if(event.key==='Enter') sendMessage()">
+                        <button onclick="sendMessage()"
+                                style="background:#f97316;border:none;color:#1c0a00;padding:14px 28px;border-radius:16px;font-weight:600;cursor:pointer;font-size:14px;font-family:'Inter',sans-serif;">
+                            Send
+                        </button>
                     </div>
-                    <button class="text-orange-400 text-sm">Download</button>
-                </div>
-                
-                <div class="bg-zinc-800 p-4 rounded-2xl flex items-center gap-4 hover:bg-zinc-700 transition">
-                    <div class="text-3xl">🖼️</div>
-                    <div class="flex-1">
-                        <p class="font-medium">wireframe-v2.fig</p>
-                        <p class="text-xs text-zinc-400">Uploaded by You • Just now</p>
-                    </div>
-                    <button class="text-orange-400 text-sm">Download</button>
                 </div>
             </div>
 
-            <!-- Upload Area -->
-            <div class="p-6 border-t border-zinc-800">
-                <label class="block w-full cursor-pointer">
-                    <div class="border-2 border-dashed border-orange-500/50 hover:border-orange-500 rounded-3xl p-8 text-center transition">
-                        <div class="text-4xl mb-3">⬆️</div>
-                        <p class="font-medium">Upload File</p>
-                        <p class="text-xs text-zinc-400 mt-1">Drag & drop or click</p>
+            <!-- ── NOTES TAB ── -->
+            <div id="content-1" class="tab-content" style="flex-direction:row;">
+
+                <!-- Notes writing area -->
+                <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding:32px 36px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-shrink:0;">
+                        <h2 style="margin:0;font-size:20px;font-weight:600;">📝 Team Notes</h2>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span id="notesSaveStatus" style="font-size:12px;color:#52525b;"></span>
+                            <button onclick="clearNotes()" style="background:#27272a;border:none;color:#a1a1aa;cursor:pointer;padding:8px 16px;border-radius:12px;font-size:13px;font-family:'Inter',sans-serif;">
+                                🗑 Clear
+                            </button>
+                        </div>
                     </div>
-                    <input type="file" class="hidden">
-                </label>
+                    <div style="flex:1;background:#18181b;border-radius:20px;padding:24px;overflow:hidden;display:flex;flex-direction:column;">
+                        <textarea id="notesEditor"
+                                  placeholder="Start typing your team notes here... Use this space for meeting notes, action items, ideas, or anything your team needs to track."></textarea>
+                    </div>
+                </div>
+
+                <!-- Files sidebar -->
+                <div id="filesSidebar">
+                    <div style="padding:20px 24px;border-bottom:1px solid #27272a;display:flex;align-items:center;justify-content:space-between;">
+                        <h2 style="margin:0;font-size:16px;font-weight:600;">📁 Files</h2>
+                        <span style="font-size:12px;color:#71717a;">2 files</span>
+                    </div>
+                    <!-- Upload zone at TOP -->
+                    <div style="padding:16px;border-bottom:1px solid #27272a;">
+                        <label style="display:block;cursor:pointer;">
+                            <div id="uploadZone"
+                                 style="border:2px dashed rgba(249,115,22,0.4);border-radius:16px;padding:20px 16px;text-align:center;transition:all 0.15s;"
+                                 onmouseenter="this.style.borderColor='#f97316';this.style.background='rgba(249,115,22,0.05)'"
+                                 onmouseleave="this.style.borderColor='rgba(249,115,22,0.4)';this.style.background='transparent'">
+                                <div style="font-size:24px;margin-bottom:6px;">⬆️</div>
+                                <p style="margin:0;font-weight:500;font-size:13px;">Upload File</p>
+                                <p style="margin:4px 0 0;font-size:11px;color:#71717a;">Drag & drop or click</p>
+                            </div>
+                            <input type="file" style="display:none;" onchange="handleFileUpload(this)">
+                        </label>
+                    </div>
+                    <!-- File list below upload -->
+                    <div style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+                        <div style="background:#27272a;padding:14px 16px;border-radius:14px;display:flex;align-items:center;gap:12px;cursor:pointer;"
+                             onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='#27272a'">
+                            <div style="font-size:26px;flex-shrink:0;">📄</div>
+                            <div style="flex:1;min-width:0;">
+                                <p style="margin:0;font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Project_Brief.pdf</p>
+                                <p style="margin:3px 0 0;font-size:11px;color:#71717a;">Sarah • 2 hours ago</p>
+                            </div>
+                            <button style="background:none;border:none;color:#fb923c;font-size:12px;cursor:pointer;flex-shrink:0;">↓</button>
+                        </div>
+                        <div style="background:#27272a;padding:14px 16px;border-radius:14px;display:flex;align-items:center;gap:12px;cursor:pointer;"
+                             onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='#27272a'">
+                            <div style="font-size:26px;flex-shrink:0;">🖼️</div>
+                            <div style="flex:1;min-width:0;">
+                                <p style="margin:0;font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">wireframe-v2.fig</p>
+                                <p style="margin:3px 0 0;font-size:11px;color:#71717a;">You • just now</p>
+                            </div>
+                            <button style="background:none;border:none;color:#fb923c;font-size:12px;cursor:pointer;flex-shrink:0;">↓</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- ── WORK IN PROGRESS TAB ── -->
+            <div id="content-2" class="tab-content">
+                <div style="flex:1;padding:32px;overflow-y:auto;">
+                    <h2 style="margin:0 0 24px;font-size:20px;font-weight:600;">Work in Progress</h2>
+                    <div style="background:#18181b;border-radius:24px;padding:40px;text-align:center;">
+                        <div style="font-size:56px;margin-bottom:16px;">🚧</div>
+                        <p style="color:#71717a;font-size:16px;margin:0;">This feature is under development</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-</body>
 
-<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script>
+        const socket = io("https://backbench-backend.onrender.com");
+        let mySocketId = null;
+        const pendingSent = new Set(); // track messages we sent to detect our own echo
 
-<script>
-    const socket = io("https://backbench-backend.onrender.com");
+        // ── TAB SWITCHING ──
+        function switchTab(idx) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+            document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+        }
 
-    socket.on("connect", () => {
-    console.log("✅ Socket Connected:", socket.id);
-});
+        // ── COPY PIN ──
+        function copyPin() {
+            const pin = document.getElementById('roomPin').textContent;
+            navigator.clipboard.writeText(pin).then(() => alert("PIN copied to clipboard!"));
+        }
 
-socket.on("connect_error", (err) => {
-    console.log("❌ Socket Error:", err.message);
-});
+        // ── LEAVE ROOM ──
+        function leaveRoom() {
+            if (confirm("Leave this room?")) {
+                localStorage.removeItem("roomPin");
+                window.location.href = "index.html";
+            }
+        }
 
-    function copyPin() {
-        const pin = document.getElementById('roomPin').textContent;
-        navigator.clipboard.writeText(pin);
-        alert("PIN copied to clipboard!");
-    }
+        // ── SEND MESSAGE ──
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
 
-    function sendMessage() {
+            const room = localStorage.getItem("roomPin");
+            // Mark this text as ours so the echo can be identified
+            pendingSent.add(message);
+            socket.emit("send-message", { room, message, senderId: mySocketId });
+            input.value = "";
+        }
 
-        const input = document.getElementById('messageInput');
-        const message = input.value.trim();
-
-        if (!message) return;
-
-        const room = localStorage.getItem("roomPin");
-
-        socket.emit("send-message", {
-            room: room,
-            message: message
+        // ── RECEIVE ALL MESSAGES (including own echo from server) ──
+        socket.on("receive-message", (data) => {
+            // Method 1: backend forwards senderId
+            if (data.senderId) {
+                renderMessage(data.message, data.senderId === mySocketId);
+                return;
+            }
+            // Method 2: fallback — check if we sent this text
+            if (pendingSent.has(data.message)) {
+                pendingSent.delete(data.message);
+                renderMessage(data.message, true);
+                return;
+            }
+            renderMessage(data.message, false);
         });
 
-        input.value = "";
-    }
-
-    socket.on("receive-message", (data) => {
-
-        const chatArea = document.getElementById("chatArea");
-
-        const msg = document.createElement("div");
-
-        msg.className = "flex gap-4";
-
-        msg.innerHTML = `
-            <div>
-                <p class="text-zinc-300">${data.message}</p>
-            </div>
-        `;
-
-        chatArea.appendChild(msg);
-
-        chatArea.scrollTop = chatArea.scrollHeight;
-    });
-
-    function leaveRoom() {
-
-        if (confirm("Leave this room?")) {
-
-            localStorage.removeItem("roomPin");
-            window.location.href = "index.html";
-
-        }
-    }
-
-    window.onload = () => {
-
-        const pin = localStorage.getItem("roomPin");
-
-        if (!pin) {
-
-            alert("No room selected!");
-            window.location.href = "index.html";
-            return;
-
+        // ── RENDER A MESSAGE BUBBLE ──
+        function renderMessage(text, isOwn) {
+            const chatArea = document.getElementById("chatArea");
+            const div = document.createElement("div");
+            div.className = "msg-bubble" + (isOwn ? " own" : "");
+            div.innerHTML = `<p>${escapeHTML(text)}</p>`;
+            chatArea.appendChild(div);
+            scrollToBottom();
         }
 
-        document.getElementById("roomPin").textContent = pin;
+        // ── ESCAPE HTML ──
+        function escapeHTML(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
 
-        loadMessages(pin);
+        // ── SCROLL TO BOTTOM ──
+        function scrollToBottom() {
+            const chatArea = document.getElementById("chatArea");
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
 
-        socket.emit("join-room", pin);
+        // ── NOTES: auto-save to localStorage ──
+        const notesEditor = document.getElementById('notesEditor');
+        const notesSaveStatus = document.getElementById('notesSaveStatus');
+        let saveTimer;
 
-        console.log("Joined room:", pin);
+        notesEditor.addEventListener('input', () => {
+            clearTimeout(saveTimer);
+            notesSaveStatus.textContent = 'Saving…';
+            saveTimer = setTimeout(() => {
+                const pin = localStorage.getItem("roomPin");
+                if (pin) localStorage.setItem(`notes_${pin}`, notesEditor.value);
+                notesSaveStatus.textContent = 'Saved ✓';
+                setTimeout(() => { notesSaveStatus.textContent = ''; }, 2000);
+            }, 800);
+        });
 
-    };
+        function clearNotes() {
+            if (!confirm("Clear all notes?")) return;
+            notesEditor.value = '';
+            const pin = localStorage.getItem("roomPin");
+            if (pin) localStorage.removeItem(`notes_${pin}`);
+            notesSaveStatus.textContent = '';
+        }
 
-    async function loadMessages(pin) {
+        // ── FILE UPLOAD (placeholder handler) ──
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            alert(`"${file.name}" selected. Connect your backend to handle uploads.`);
+        }
 
-    const response =
-        await fetch(
-            `https://backbench-backend.onrender.com/messages/${pin}`
-        );
+        // ── ON LOAD ──
+        window.onload = () => {
+            const pin = localStorage.getItem("roomPin");
+            if (!pin) {
+                alert("No room selected!");
+                window.location.href = "index.html";
+                return;
+            }
 
-    const messages =
-        await response.json();
+            document.getElementById("roomPin").textContent = pin;
+            socket.emit("join-room", pin);
+            loadMessages(pin);
 
-    const chatArea =
-        document.getElementById(
-            "chatArea"
-        );
+            // Restore saved notes
+            const saved = localStorage.getItem(`notes_${pin}`);
+            if (saved) notesEditor.value = saved;
+        };
 
-    chatArea.innerHTML = "";
+        socket.on("connect", () => {
+            mySocketId = socket.id;
+        });
 
-    messages.forEach((msg) => {
-
-        const div =
-            document.createElement(
-                "div"
-            );
-
-        div.innerHTML = `
-            <p class="text-zinc-300">
-                ${msg.text}
-            </p>
-        `;
-
-        chatArea.appendChild(div);
-
-    });
-
-}
-</script>
+        // ── LOAD HISTORY ──
+        async function loadMessages(pin) {
+            try {
+                const response = await fetch(`https://backbench-backend.onrender.com/messages/${pin}`);
+                const messages = await response.json();
+                const chatArea = document.getElementById("chatArea");
+                chatArea.innerHTML = "";
+                messages.forEach((msg) => {
+                    const div = document.createElement("div");
+                    div.className = "msg-bubble";
+                    div.innerHTML = `<p>${escapeHTML(msg.text)}</p>`;
+                    chatArea.appendChild(div);
+                });
+                scrollToBottom();
+            } catch (e) {
+                console.log("Failed to load messages:", e);
+            }
+        }
+    </script>
+</body>
 </html>
