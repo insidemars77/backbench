@@ -433,7 +433,7 @@
             const roomPin = localStorage.getItem("roomPin");
 
             const response = await fetch(
-                "http://localhost:8080/create-category",
+                "http://backbench-backend.onrender.com/create-category",
                 {
                     method:"POST",
                     headers:{
@@ -460,7 +460,7 @@
             const roomPin = localStorage.getItem("roomPin");
 
             const response = await fetch(
-                `http://localhost:8080/categories/${roomPin}`
+                `http://backbench-backend.onrender.com/categories/${roomPin}`
             );
 
             const categories = await response.json();
