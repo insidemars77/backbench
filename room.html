@@ -128,6 +128,7 @@
             margin: 0;
             font-size: 14px;
             line-height: 1.5;
+            white-space: pre-wrap;
         }
         .msg-bubble.own p { color: #1c0a00; }
 
@@ -211,12 +212,23 @@
                 <div id="chatArea"></div>
                 <div id="messageInputBar">
                     <div style="display:flex;gap:12px;">
-                        <input type="text" id="messageInput"
-                               style="flex:1;background:#27272a;border:1px solid #3f3f46;color:white;border-radius:16px;padding:14px 20px;outline:none;font-size:14px;font-family:'Inter',sans-serif;"
-                               placeholder="Type a message..."
-                               onfocus="this.style.borderColor='#f97316'"
-                               onblur="this.style.borderColor='#3f3f46'"
-                               onkeydown="if(event.key==='Enter') sendMessage()">
+                        <textarea
+                            id="messageInput"
+                            rows="2"
+                            placeholder="Type a message..."
+                            style="
+                            flex:1;
+                            background:#27272a;
+                            border:1px solid #3f3f46;
+                            color:white;
+                            border-radius:16px;
+                            padding:14px 20px;
+                            outline:none;
+                            font-size:14px;
+                            font-family:'Inter',sans-serif;
+                            resize:none;
+                            "
+                        ></textarea>
                         <button onclick="sendMessage()"
                                 style="background:#f97316;border:none;color:#1c0a00;padding:14px 28px;border-radius:16px;font-weight:600;cursor:pointer;font-size:14px;font-family:'Inter',sans-serif;">
                             Send
@@ -228,65 +240,6 @@
             <!-- ── NOTES TAB ── -->
             <div id="content-1" class="tab-content" style="flex-direction:row;">
 
-                <!-- Notes writing area -->
-                <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding:32px 36px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-shrink:0;">
-                        <h2 style="margin:0;font-size:20px;font-weight:600;">📝 Team Notes</h2>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <span id="notesSaveStatus" style="font-size:12px;color:#52525b;"></span>
-                            <button onclick="clearNotes()" style="background:#27272a;border:none;color:#a1a1aa;cursor:pointer;padding:8px 16px;border-radius:12px;font-size:13px;font-family:'Inter',sans-serif;">
-                                🗑 Clear
-                            </button>
-                        </div>
-                    </div>
-                    <div style="flex:1;background:#18181b;border-radius:20px;padding:24px;overflow:hidden;display:flex;flex-direction:column;">
-                        <textarea id="notesEditor"
-                                  placeholder="Start typing your team notes here... Use this space for meeting notes, action items, ideas, or anything your team needs to track."></textarea>
-                    </div>
-                </div>
-
-                <!-- Files sidebar -->
-                <div id="filesSidebar">
-                    <div style="padding:20px 24px;border-bottom:1px solid #27272a;display:flex;align-items:center;justify-content:space-between;">
-                        <h2 style="margin:0;font-size:16px;font-weight:600;">📁 Files</h2>
-                        <span style="font-size:12px;color:#71717a;">2 files</span>
-                    </div>
-                    <!-- Upload zone at TOP -->
-                    <div style="padding:16px;border-bottom:1px solid #27272a;">
-                        <label style="display:block;cursor:pointer;">
-                            <div id="uploadZone"
-                                 style="border:2px dashed rgba(249,115,22,0.4);border-radius:16px;padding:20px 16px;text-align:center;transition:all 0.15s;"
-                                 onmouseenter="this.style.borderColor='#f97316';this.style.background='rgba(249,115,22,0.05)'"
-                                 onmouseleave="this.style.borderColor='rgba(249,115,22,0.4)';this.style.background='transparent'">
-                                <div style="font-size:24px;margin-bottom:6px;">⬆️</div>
-                                <p style="margin:0;font-weight:500;font-size:13px;">Upload File</p>
-                                <p style="margin:4px 0 0;font-size:11px;color:#71717a;">Drag & drop or click</p>
-                            </div>
-                            <input type="file" style="display:none;" onchange="handleFileUpload(this)">
-                        </label>
-                    </div>
-                    <!-- File list below upload -->
-                    <div style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
-                        <div style="background:#27272a;padding:14px 16px;border-radius:14px;display:flex;align-items:center;gap:12px;cursor:pointer;"
-                             onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='#27272a'">
-                            <div style="font-size:26px;flex-shrink:0;">📄</div>
-                            <div style="flex:1;min-width:0;">
-                                <p style="margin:0;font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Project_Brief.pdf</p>
-                                <p style="margin:3px 0 0;font-size:11px;color:#71717a;">Sarah • 2 hours ago</p>
-                            </div>
-                            <button style="background:none;border:none;color:#fb923c;font-size:12px;cursor:pointer;flex-shrink:0;">↓</button>
-                        </div>
-                        <div style="background:#27272a;padding:14px 16px;border-radius:14px;display:flex;align-items:center;gap:12px;cursor:pointer;"
-                             onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='#27272a'">
-                            <div style="font-size:26px;flex-shrink:0;">🖼️</div>
-                            <div style="flex:1;min-width:0;">
-                                <p style="margin:0;font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">wireframe-v2.fig</p>
-                                <p style="margin:3px 0 0;font-size:11px;color:#71717a;">You • just now</p>
-                            </div>
-                            <button style="background:none;border:none;color:#fb923c;font-size:12px;cursor:pointer;flex-shrink:0;">↓</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- ── WORK IN PROGRESS TAB ── -->
@@ -299,7 +252,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -382,30 +334,6 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        // ── NOTES: auto-save to localStorage ──
-        const notesEditor = document.getElementById('notesEditor');
-        const notesSaveStatus = document.getElementById('notesSaveStatus');
-        let saveTimer;
-
-        notesEditor.addEventListener('input', () => {
-            clearTimeout(saveTimer);
-            notesSaveStatus.textContent = 'Saving…';
-            saveTimer = setTimeout(() => {
-                const pin = localStorage.getItem("roomPin");
-                if (pin) localStorage.setItem(`notes_${pin}`, notesEditor.value);
-                notesSaveStatus.textContent = 'Saved ✓';
-                setTimeout(() => { notesSaveStatus.textContent = ''; }, 2000);
-            }, 800);
-        });
-
-        function clearNotes() {
-            if (!confirm("Clear all notes?")) return;
-            notesEditor.value = '';
-            const pin = localStorage.getItem("roomPin");
-            if (pin) localStorage.removeItem(`notes_${pin}`);
-            notesSaveStatus.textContent = '';
-        }
-
         // ── FILE UPLOAD (placeholder handler) ──
         function handleFileUpload(input) {
             const file = input.files[0];
@@ -425,10 +353,6 @@
             document.getElementById("roomPin").textContent = pin;
             socket.emit("join-room", pin);
             loadMessages(pin);
-
-            // Restore saved notes
-            const saved = localStorage.getItem(`notes_${pin}`);
-            if (saved) notesEditor.value = saved;
         };
 
         socket.on("connect", () => {
