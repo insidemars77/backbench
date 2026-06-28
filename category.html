@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploads • Backbench</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap');
+        
+        :root {
+            --accent: #f97316;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            background: #09090b;
+            color: white;
+        }
+        
+        .title-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+        }
+
+        .upload-card {
+            border: 3px dashed #f97316;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 1280px) {
+            .grid-container { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 1024px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .grid-container { grid-template-columns: 1fr; }
+        }
+
+        .sidebar {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .msg-bubble, .tab-btn {
+            transition: all 0.2s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- TOP BAR - Matching room.html style -->
+    <header class="bg-[#18181b] border-b border-[#f97316]/30 py-4 px-6 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-x-4">
+            <!-- Back Button -->
+            <button onclick="goBack()" 
+                    class="flex items-center justify-center w-10 h-10 hover:bg-[#27272a] rounded-2xl text-zinc-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </button>
+
+            <!-- Logo -->
+            <div class="flex items-center gap-x-3">
+                <div style="width:36px;height:36px;background:#f97316;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#1c0a00;">B</div>
+                <div class="title-font text-3xl font-semibold tracking-tighter">backbench</div>
+            </div>
+
+            <!-- Category Info -->
+            <div class="ml-8 pl-8 border-l border-zinc-700">
+                <div class="flex items-center gap-x-3">
+                    <div class="px-5 py-2 bg-[#27272a] text-orange-400 rounded-3xl text-sm font-medium flex items-center gap-x-2">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span id="category-name"></span>
+                    </div>
+                    <div class="px-4 py-2 bg-zinc-900 text-zinc-400 text-sm font-mono rounded-3xl">
+                        PIN: <span id="room-pin"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="flex items-center gap-x-4">
+            <!-- Search -->
+            <div class="relative w-80">
+                <input 
+                    id="search-input"
+                    type="text" 
+                    placeholder="Search files in this category..."
+                    onkeyup="filterFiles()"
+                    class="w-full bg-[#27272a] border border-zinc-700 focus:border-[#f97316] focus:outline-none rounded-3xl py-3 px-5 pl-12 text-sm">
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 p-8 overflow-auto">
+        <div id="files-grid" class="grid-container max-w-screen-2xl mx-auto">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div id="sidebar" class="sidebar fixed top-0 right-0 h-full w-96 bg-[#18181b] border-l border-zinc-700 shadow-2xl z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-semibold title-font">File Info</h2>
+                <button onclick="closeSidebar()" class="text-3xl leading-none text-zinc-400 hover:text-white">×</button>
+            </div>
+
+            <div id="sidebar-icon" class="flex justify-center text-8xl mb-8"></div>
+
+            <h1 id="sidebar-filename" class="title-font text-2xl font-semibold leading-tight mb-1"></h1>
+            <p id="sidebar-type" class="text-orange-400 uppercase text-sm tracking-widest font-medium"></p>
+
+            <div class="mt-10 grid grid-cols-2 gap-8 text-sm">
+                <div>
+                    <div class="text-zinc-400 text-xs">SIZE</div>
+                    <div id="sidebar-size" class="font-medium text-lg"></div>
+                </div>
+                <div>
+                    <div class="text-zinc-400 text-xs">UPLOADED</div>
+                    <div id="sidebar-date" class="font-medium text-lg"></div>
+                </div>
+            </div>
+
+            <div class="mt-12">
+                <button onclick="downloadFile()" 
+                        class="w-full bg-[#f97316] hover:bg-orange-600 text-black font-semibold py-4 rounded-3xl flex items-center justify-center gap-x-3">
+                    <i class="fa-solid fa-download"></i>
+                    DOWNLOAD
+                </button>
+            </div>
+
+            <button onclick="closeSidebar()" 
+                    class="w-full mt-4 py-4 text-zinc-400 hover:text-white font-medium">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#27272a] border border-[#f97316] text-white px-6 py-4 rounded-3xl shadow-2xl flex items-center gap-x-3 z-50">
+        <i class="fa-solid fa-circle-check text-orange-400"></i>
+        <span id="toast-text" class="font-medium"></span>
+    </div>
+
+    <script>
+
+        const params = new URLSearchParams(window.location.search);
+
+        const roomPin = params.get("room");
+        const categoryName = params.get("category");
+
+        // Fake data
+        let files = [
+            { id: 1, name: "Java_Notes.pdf", size: "2.4 MB", date: "Jun 25, 2026", type: "pdf", icon: "📕" },
+            { id: 2, name: "Operating_Systems.pdf", size: "8.1 MB", date: "Jun 24, 2026", type: "pdf", icon: "📘" },
+            { id: 3, name: "Lecture_4_Recursion.pptx", size: "14.7 MB", date: "Jun 23, 2026", type: "pptx", icon: "📊" },
+            { id: 4, name: "System_Design_Diagram.png", size: "1.8 MB", date: "Jun 22, 2026", type: "png", icon: "🖼️" },
+            { id: 5, name: "Database_Queries.docx", size: "956 KB", date: "Jun 21, 2026", type: "docx", icon: "📝" },
+            { id: 6, name: "Week_3_Lecture.mp4", size: "248 MB", date: "Jun 20, 2026", type: "mp4", icon: "🎥" },
+            { id: 7, name: "Assignment_3_Submission.zip", size: "12.4 MB", date: "Jun 19, 2026", type: "zip", icon: "📦" },
+            { id: 8, name: "Algorithms_CheatSheet.pdf", size: "3.9 MB", date: "Jun 18, 2026", type: "pdf", icon: "📕" },
+            { id: 9, name: "Midterm_Review.pptx", size: "19.2 MB", date: "Jun 17, 2026", type: "pptx", icon: "📊" },
+            { id: 10, name: "ER_Diagram_v2.png", size: "2.1 MB", date: "Jun 16, 2026", type: "png", icon: "🖼️" },
+            { id: 11, name: "OOP_Concepts.docx", size: "1.4 MB", date: "Jun 15, 2026", type: "docx", icon: "📝" },
+            { id: 12, name: "Graph_Theory_Notes.pdf", size: "5.3 MB", date: "Jun 14, 2026", type: "pdf", icon: "📘" }
+        ];
+
+        function renderFiles(filteredFiles) {
+            const grid = document.getElementById("files-grid");
+            grid.innerHTML = "";
+
+            // Upload Card
+            const uploadCard = document.createElement("div");
+            uploadCard.className = `upload-card bg-[#18181b] h-80 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#27272a]`;
+            uploadCard.innerHTML = `
+                <div class="w-24 h-24 rounded-3xl border-4 border-dashed border-[#f97316] flex items-center justify-center mb-6">
+                    <i class="fa-solid fa-plus text-5xl text-orange-400"></i>
+                </div>
+                <div class="title-font text-2xl font-semibold text-orange-400">Upload File</div>
+                <p class="text-zinc-400 mt-2">or drop files here</p>
+            `;
+            uploadCard.onclick = triggerFileUpload;
+            grid.appendChild(uploadCard);
+
+            // File Cards
+            filteredFiles.forEach(file => {
+                const card = document.createElement("div");
+                card.className = `card bg-[#18181b] rounded-3xl overflow-hidden cursor-pointer`;
+                card.innerHTML = `
+                    <div class="h-52 bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center text-7xl border-b border-zinc-700">
+                        ${file.icon}
+                    </div>
+                    <div class="p-5">
+                        <div class="font-medium line-clamp-2 h-12">${file.name}</div>
+                        <div class="flex justify-between text-xs mt-6">
+                            <div>
+                                <div class="text-zinc-400">${file.size}</div>
+                                <div class="text-zinc-500">${file.date}</div>
+                            </div>
+                            <div class="px-3 py-1 bg-zinc-800 rounded-2xl text-[10px] font-mono uppercase tracking-widest self-end">
+                                ${file.type}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => openSidebar(file);
+                grid.appendChild(card);
+            });
+        }
+
+        let currentFile = null;
+
+        function openSidebar(file) {
+            currentFile = file;
+            document.getElementById("sidebar-icon").innerHTML = file.icon;
+            document.getElementById("sidebar-filename").textContent = file.name;
+            document.getElementById("sidebar-type").textContent = file.type.toUpperCase();
+            document.getElementById("sidebar-size").textContent = file.size;
+            document.getElementById("sidebar-date").textContent = file.date;
+
+            document.getElementById("sidebar").classList.add("open");
+        }
+
+        function closeSidebar() {
+            document.getElementById("sidebar").classList.remove("open");
+        }
+
+        function filterFiles() {
+            const query = document.getElementById("search-input").value.toLowerCase();
+            const filtered = files.filter(f => f.name.toLowerCase().includes(query));
+            renderFiles(filtered);
+        }
+
+        function triggerFileUpload() {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.onchange = (e) => {
+                if (e.target.files[0]) {
+                    const fileName = e.target.files[0].name;
+                    showToast(`✅ ${fileName} uploaded`);
+                    
+                    // Add to list
+                    const newFile = {
+                        id: Date.now(),
+                        name: fileName,
+                        size: (Math.random() * 15 + 0.5).toFixed(1) + " MB",
+                        date: "Jun 28, 2026",
+                        type: fileName.split('.').pop().toLowerCase() || "file",
+                        icon: getIcon(fileName)
+                    };
+                    files.unshift(newFile);
+                    renderFiles(files);
+                }
+            };
+            input.click();
+        }
+
+        function getIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const map = { pdf: "📕", pptx: "📊", docx: "📝", png: "🖼️", jpg: "🖼️", mp4: "🎥", zip: "📦" };
+            return map[ext] || "📄";
+        }
+
+        function downloadFile() {
+            if (!currentFile) return;
+            showToast(`📥 Downloading ${currentFile.name}...`);
+            setTimeout(closeSidebar, 1200);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-text").innerHTML = msg;
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 3000);
+        }
+
+        function goBack() {
+            window.location.href = "room.html";
+        }
+
+        // Keyboard
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") closeSidebar();
+        });
+
+        // Init
+        window.onload = () => {
+
+            document.getElementById("category-name").textContent = categoryName;
+
+            document.getElementById("room-pin").textContent = roomPin;
+
+            renderFiles(files);
+
+        };
+
+    </script>
+</body>
+</html>

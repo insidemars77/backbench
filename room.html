@@ -523,6 +523,12 @@
 
                 div.innerHTML = `📁 ${category.name}`;
 
+                div.onclick = () => {
+                    const roomPin = localStorage.getItem("roomPin");
+                    window.location.href =
+                        `category.html?room=${roomPin}&category=${encodeURIComponent(category.name)}`;
+                };
+
                 div.onmouseenter = () => div.style.background = "#27272a";
                 div.onmouseleave = () => div.style.background = "#18181b";
 
