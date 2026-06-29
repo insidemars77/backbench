@@ -178,6 +178,8 @@
     const roomPin = params.get("room");
     const categoryName = params.get("category");
 
+    console.log("scrit starts");
+
     let allFiles = [];   // ← Global variable
 
     function renderFiles(filteredFiles) {
@@ -228,7 +230,7 @@
         try {
 
             const response = await fetch(
-                `http://localhost:8080/files/${roomPin}/${categoryName}`
+                `https://backbench-backend.onrender.com/files/${roomPin}/${categoryName}`
             );
 
             console.log("Status:", response.status);
@@ -314,7 +316,7 @@
             formData.append("category", categoryName);
 
             try {
-                const response = await fetch("http://localhost:8080/upload", {
+                const response = await fetch("https://backbench-backend.onrender.com/upload", {
                     method: "POST",
                     body: formData
                 });
@@ -353,7 +355,7 @@
         try {
 
             const response = await fetch(
-                `http://localhost:8080/download/${currentFile.id}`
+                `https://backbench-backend.onrender.com/download/${currentFile.id}`
             );
 
             const data = await response.json();
