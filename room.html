@@ -112,17 +112,27 @@
         }
 
         /* ── MESSAGE BUBBLES ── */
+        .msg-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-width: 72%;
+            align-self: flex-start;
+            group-hover: true;
+        }
+        
         .msg-bubble {
             background: #27272a;
             border-radius: 16px;
             padding: 12px 16px;
-            max-width: 72%;
-            align-self: flex-start;
+            position: relative;
         }
+        
         .msg-bubble.own {
             background: #f97316;
             align-self: flex-end;
         }
+        
         .msg-bubble p {
             color: #d4d4d8;
             margin: 0;
@@ -131,6 +141,46 @@
             white-space: pre-wrap;
         }
         .msg-bubble.own p { color: #1c0a00; }
+
+        /* Copy button */
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: -36px;
+            opacity: 0;
+            transition: all 0.2s ease;
+            background: #27272a;
+            color: #a1a1aa;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 10;
+        }
+        
+        .msg-container:hover .copy-btn {
+            opacity: 1;
+            right: -40px;
+        }
+        
+        .copy-btn:hover {
+            background: #3f3f46;
+            color: white;
+        }
+        
+        .msg-bubble.own .copy-btn {
+            right: auto;
+            left: -36px;
+        }
+        
+        .msg-container:hover .msg-bubble.own .copy-btn {
+            left: -40px;
+        }
 
         /* ── FILES SIDEBAR ── */
         #filesSidebar {
@@ -167,6 +217,59 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         .msg-bubble { animation: fadeIn 0.15s ease; }
+
+        /* ── RESPONSIVE / PHONE ── */
+        @media (max-width: 640px) {
+            #topBar {
+                padding: 12px 14px;
+                flex-wrap: wrap;
+                row-gap: 10px;
+            }
+            #topBar h1 { font-size: 16px; }
+            #topBar p { font-size: 11px; }
+            #topBar > div:last-child {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                row-gap: 8px;
+                gap: 8px;
+            }
+            #topBar > div:last-child > div:first-child span { font-size: 12px; }
+            #topBar button { font-size: 12px; padding: 8px 12px; white-space: nowrap; }
+
+            .tab-btn {
+                padding: 12px 14px;
+                font-size: 12px;
+                flex: 1;
+                justify-content: center;
+            }
+
+            #chatArea { padding: 14px; }
+            .msg-bubble { max-width: 88%; }
+
+            #messageInputBar { padding: 12px 14px; }
+            #messageInputBar > div { flex-direction: column; }
+            #messageInputBar button { width: 100%; padding: 12px; }
+
+            #categoryGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 14px !important;
+                padding: 16px !important;
+            }
+            #categoryGrid > div { height: 130px !important; }
+            #categoryGrid > div div[style*="font-size:54px"] { font-size: 36px !important; }
+
+            #filesSidebar { width: 100% !important; }
+            
+            /* Adjust copy button on mobile */
+            .copy-btn {
+                display: none;
+            }
+        }
+
+        @media (max-width: 400px) {
+            #categoryGrid { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body>
@@ -318,6 +421,19 @@
             navigator.clipboard.writeText(pin).then(() => alert("PIN copied to clipboard!"));
         }
 
+        // ── COPY MESSAGE ──
+        function copyMessage(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = '✓';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.style.color = '';
+                }, 1500);
+            });
+        }
+
         // ── LEAVE ROOM ──
         function leaveRoom() {
             if (confirm("Leave this room?")) {
@@ -358,10 +474,27 @@
         // ── RENDER A MESSAGE BUBBLE ──
         function renderMessage(text, isOwn) {
             const chatArea = document.getElementById("chatArea");
-            const div = document.createElement("div");
-            div.className = "msg-bubble" + (isOwn ? " own" : "");
-            div.innerHTML = `<p>${escapeHTML(text)}</p>`;
-            chatArea.appendChild(div);
+            
+            const container = document.createElement("div");
+            container.className = "msg-container";
+            
+            const bubble = document.createElement("div");
+            bubble.className = "msg-bubble" + (isOwn ? " own" : "");
+            bubble.innerHTML = `<p>${escapeHTML(text)}</p>`;
+            
+            const copyBtn = document.createElement("button");
+            copyBtn.className = "copy-btn";
+            copyBtn.innerHTML = '📋';
+            copyBtn.title = "Copy message";
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                copyMessage(text, copyBtn);
+            };
+            
+            container.appendChild(bubble);
+            container.appendChild(copyBtn);
+            chatArea.appendChild(container);
+            
             scrollToBottom();
         }
 
@@ -413,10 +546,8 @@
                 const chatArea = document.getElementById("chatArea");
                 chatArea.innerHTML = "";
                 messages.forEach((msg) => {
-                    const div = document.createElement("div");
-                    div.className = "msg-bubble";
-                    div.innerHTML = `<p>${escapeHTML(msg.text)}</p>`;
-                    chatArea.appendChild(div);
+                    // Assuming backend returns {text, senderId?} - fallback to non-own for history
+                    renderMessage(msg.text || msg, false); 
                 });
                 scrollToBottom();
             } catch (e) {

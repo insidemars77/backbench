@@ -79,8 +79,8 @@
 <body class="min-h-screen flex flex-col">
 
     <!-- TOP BAR - Matching room.html style -->
-    <header class="bg-[#18181b] border-b border-[#f97316]/30 py-4 px-6 flex items-center justify-between flex-shrink-0">
-        <div class="flex items-center gap-x-4">
+    <header class="bg-[#18181b] border-b border-[#f97316]/30 py-4 px-4 sm:px-6 flex flex-wrap items-center justify-between gap-y-3 flex-shrink-0">
+        <div class="flex items-center flex-wrap gap-x-4 gap-y-3">
             <!-- Back Button -->
             <button onclick="goBack()" 
                     class="flex items-center justify-center w-10 h-10 hover:bg-[#27272a] rounded-2xl text-zinc-400 hover:text-white">
@@ -90,17 +90,17 @@
             <!-- Logo -->
             <div class="flex items-center gap-x-3">
                 <div style="width:36px;height:36px;background:#f97316;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#1c0a00;">B</div>
-                <div class="title-font text-3xl font-semibold tracking-tighter">backbench</div>
+                <div class="title-font text-2xl sm:text-3xl font-semibold tracking-tighter">backbench</div>
             </div>
 
             <!-- Category Info -->
-            <div class="ml-8 pl-8 border-l border-zinc-700">
-                <div class="flex items-center gap-x-3">
-                    <div class="px-5 py-2 bg-[#27272a] text-orange-400 rounded-3xl text-sm font-medium flex items-center gap-x-2">
+            <div class="sm:ml-8 sm:pl-8 sm:border-l border-zinc-700">
+                <div class="flex items-center flex-wrap gap-x-3 gap-y-2">
+                    <div class="px-4 sm:px-5 py-2 bg-[#27272a] text-orange-400 rounded-3xl text-xs sm:text-sm font-medium flex items-center gap-x-2">
                         <i class="fa-solid fa-folder-open"></i>
                         <span id="category-name"></span>
                     </div>
-                    <div class="px-4 py-2 bg-zinc-900 text-zinc-400 text-sm font-mono rounded-3xl">
+                    <div class="px-4 py-2 bg-zinc-900 text-zinc-400 text-xs sm:text-sm font-mono rounded-3xl">
                         PIN: <span id="room-pin"></span>
                     </div>
                 </div>
@@ -108,9 +108,9 @@
         </div>
 
         <!-- Right Side -->
-        <div class="flex items-center gap-x-4">
+        <div class="flex items-center gap-x-4 w-full sm:w-auto">
             <!-- Search -->
-            <div class="relative w-80">
+            <div class="relative w-full sm:w-80">
                 <input 
                     id="search-input"
                     type="text" 
@@ -122,14 +122,14 @@
         </div>
     </header>
 
-    <div class="flex-1 p-8 overflow-auto">
+    <div class="flex-1 p-4 sm:p-8 overflow-auto">
         <div id="files-grid" class="grid-container max-w-screen-2xl mx-auto">
             <!-- Populated by JS -->
         </div>
     </div>
 
     <!-- RIGHT SIDEBAR -->
-    <div id="sidebar" class="sidebar fixed top-0 right-0 h-full w-96 bg-[#18181b] border-l border-zinc-700 shadow-2xl z-50 overflow-y-auto">
+    <div id="sidebar" class="sidebar fixed top-0 right-0 h-full w-full max-w-full sm:w-96 bg-[#18181b] border-l border-zinc-700 shadow-2xl z-50 overflow-y-auto">
         <div class="p-6">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-xl font-semibold title-font">File Info</h2>

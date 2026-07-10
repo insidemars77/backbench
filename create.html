@@ -15,23 +15,23 @@
             ← Back
         </div>
 
-        <div class="bg-zinc-900 border border-orange-500/30 rounded-3xl p-8 shadow-2xl">
+        <div class="bg-zinc-900 border border-orange-500/30 rounded-3xl p-5 sm:p-8 shadow-2xl">
             <div class="text-center mb-8">
-                <h2 class="text-4xl font-bold tracking-tighter mb-2">Create New Room</h2>
-                <p class="text-zinc-400">6-digit PIN • Auto or custom</p>
+                <h2 class="text-3xl sm:text-4xl font-bold tracking-tighter mb-2">Create New Room</h2>
+                <p class="text-zinc-400 text-sm sm:text-base">6-digit PIN • Auto or custom</p>
             </div>
 
             <!-- Fixed PIN Section -->
-            <div class="flex gap-3">
+            <div class="flex gap-2 sm:gap-3">
                 <input type="text" id="pinInput" maxlength="6"
-                    class="flex-1 min-w-0 bg-zinc-950 border border-zinc-700 focus:border-orange-500 rounded-2xl py-6 text-4xl text-center tracking-widest font-mono outline-none transition-all"
+                    class="flex-1 min-w-0 bg-zinc-950 border border-zinc-700 focus:border-orange-500 rounded-2xl py-5 sm:py-6 text-2xl sm:text-4xl text-center tracking-widest font-mono outline-none transition-all"
                     placeholder="000000"
                     oninput="this.value = this.value.replace(/[^0-9]/g,'')">
 
                 <button onclick="generatePin()" 
-                    class="w-24 flex-shrink-0 bg-zinc-800 hover:bg-zinc-700 text-orange-400 px-3 py-4 rounded-2xl flex flex-col items-center justify-center transition-all">
-                    <span class="text-2xl leading-none">♻</span>
-                    <span class="text-[10px] mt-1 font-medium">NEW</span>
+                    class="w-16 sm:w-24 flex-shrink-0 bg-zinc-800 hover:bg-zinc-700 text-orange-400 px-2 sm:px-3 py-3 sm:py-4 rounded-2xl flex flex-col items-center justify-center transition-all">
+                    <span class="text-xl sm:text-2xl leading-none">♻</span>
+                    <span class="text-[9px] sm:text-[10px] mt-1 font-medium">NEW</span>
                 </button>
 
             </div>
@@ -40,7 +40,7 @@
             </div>
             <div>
                 <button onclick="createRoom()" 
-                    class="w-full px-6 py-6 bg-orange-500 hover:bg-orange-600 text-black font-semibold text-xl rounded-3xl transition-all">
+                    class="w-full mt-2 px-6 py-5 sm:py-6 bg-orange-500 hover:bg-orange-600 text-black font-semibold text-lg sm:text-xl rounded-3xl transition-all">
                     Create Room
                 </button>
             </div>
